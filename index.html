@@ -12,19 +12,59 @@
 </head>
 <body>
 
-  Day
-  DD
+  <main>
+    <div class="date-form">
 
-  Month
-  MM
+      <div class="date-group">
+        <label for="day">Day</label>
+        <input id="day" placeholder="DD">
+        <span class="error error-valid-date">Must be a valid date</span>
+        <span class="error error-day-required">This field is required</span>
+        <span class="error error-day">Must be a valid day</span>
+      </div>
 
-  Year
-  YYYY
+      <div class="date-group">
+        <label for="month" >Month</label>
+        <input id="month" placeholder="MM">
+        <span class="error error-month-required">This field is required</span>
+        <span class="error error-month">Must be a valid month</span>
+      </div>
 
-  -- years
-  -- months
-  -- days
-  
+      <div class="date-group">
+        <label for="year">Year</label>
+        <input id="year" placeholder="YYYY">
+        <span class="error error-year-required">This field is required</span>
+        <span class="error error-year">Must be in the past</span>
+      </div>
+
+    </div>
+
+    <div class="separator">
+      <hr>
+      <div class="img-wrapper" onclick="getInputValues()">
+        <img src="assets/images/icon-arrow.svg" alt="arrow pointing down">
+      </div>
+    </div>
+
+
+    <div class="results">
+
+      <div class="result-group">
+        <p><span class="result result-years">-- </span>years</p>
+      </div>
+      
+      <div class="result-group">
+        <p><span class="result result-months">-- </span>months</p>
+      </div>
+      
+      <div class="result-group">
+        <p><span class="result result-days">-- </span>days</p>
+      </div>
+
+    </div>
+
+  </main>
+
   <script src="app.js"></script>
 </body>
 </html>
