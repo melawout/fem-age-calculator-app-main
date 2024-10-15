@@ -1,9 +1,8 @@
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
-const currentMonth = currentDate.getMonth() + 1; // No need to pad for internal logic
+const currentMonth = currentDate.getMonth() + 1;
 const currentDay = currentDate.getDate();
 
-// Selecting DOM elements once
 const errorElements = {
   day: document.querySelector('.error-day'),
   month: document.querySelector('.error-month'),
