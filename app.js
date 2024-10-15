@@ -1,136 +1,104 @@
 const currentDate = new Date();
 const currentYear = currentDate.getFullYear();
-const currentMonth = parseInt(String(currentDate.getMonth() + 1).padStart(2, '0'));
-const currentDay = parseInt(String(currentDate.getDate()).padStart(2, '0'));
+const currentMonth = currentDate.getMonth() + 1; // No need to pad for internal logic
+const currentDay = currentDate.getDate();
 
-// Selecting DOM elements (no parseInt needed here)
-const errorDay = document.querySelector('.error-day');
-const errorMonth = document.querySelector('.error-month');
-const errorYear = document.querySelector('.error-year');
-
-const errorRequiredDay = document.querySelector('.error-day-required');
-const errorRequiredMonth = document.querySelector('.error-month-required');
-const errorRequiredYear = document.querySelector('.error-year-required');
-
-const errorValidDate = document.querySelector('.error-valid-date');
+// Selecting DOM elements once
+const errorElements = {
+  day: document.querySelector('.error-day'),
+  month: document.querySelector('.error-month'),
+  year: document.querySelector('.error-year'),
+  requiredDay: document.querySelector('.error-day-required'),
+  requiredMonth: document.querySelector('.error-month-required'),
+  requiredYear: document.querySelector('.error-year-required'),
+  validDate: document.querySelector('.error-valid-date')
+};
 
 function getInputValues() {
-  // Declare the input values using 'let' so they can be reassigned
-  let day = document.getElementById('day').value;
-  let month = document.getElementById('month').value;
-  let year = document.getElementById('year').value;
+  const day = parseInt(document.getElementById('day').value);
+  const month = parseInt(document.getElementById('month').value);
+  const year = parseInt(document.getElementById('year').value);
 
-  // Check if fields are empty
-  if (isEmpty(day, month, year)) {
-    return false
+  // Validation checks
+  if (isEmpty(day, month, year) || !isValid(day, month, year) || !isValidDate(day, month, year)) {
+    return; // Exit early if any validation fails
   }
 
-  if(!isValid(day, month, year)) {
-    return false
-  }
-
-  if(!inputValidation(day, month, year)){
-    return false
-  }
-
-  day = parseInt(day);
-  month = parseInt(month);
-  year = parseInt(year);
-
-    console.log(typeof(day)); // Should be number now
-    console.log(typeof(month)); // Should be number now
-    console.log(typeof(year)); // Should be number now
-
-    calculateTime(day, month, year)
+  calculateTime(day, month, year); // Proceed if everything is valid
 }
 
-// Function to check if the fields are empty
+function toggleError(element, isError) {
+  element.style.display = isError ? 'block' : 'none';
+}
+
+// Check if any input field is empty
 function isEmpty(day, month, year) {
-  let emptyFlag = false;
+  let isEmptyFlag = false;
 
-  if (day === "") {
-    errorRequiredDay.style.display = 'block';
-    emptyFlag = true;
-  } else {
-    errorRequiredDay.style.display = 'none';
+  toggleError(errorElements.requiredDay, !day);
+  toggleError(errorElements.requiredMonth, !month);
+  toggleError(errorElements.requiredYear, !year);
+
+  if (!day || !month || !year) {
+    isEmptyFlag = true;
   }
-
-  if (month === "") {
-    errorRequiredMonth.style.display = 'block';
-    emptyFlag = true;
-  } else {
-    errorRequiredMonth.style.display = 'none';
-  }
-
-  if (year === "") {
-    errorRequiredYear.style.display = 'block';
-    emptyFlag = true;
-  } else {
-    errorRequiredYear.style.display = 'none';
-  }
-
-  // Return true if any of the fields are empty
-  return emptyFlag;
+  return isEmptyFlag;
 }
 
-// Function check if it is a valid date
-function isValid(day, month, year){
-  let validFlag = true
+// Check if day, month, and year are valid inputs
+function isValid(day, month, year) {
+  let isValidFlag = true;
 
-  if(isNaN(day) || isNaN(month) || isNaN(year)){
-    errorValidDate.style.display = 'block'
-    
-    return false
-  }else{
-    errorValidDate.style.display = 'none'
+  toggleError(errorElements.day, day < 1 || day > 31);
+  toggleError(errorElements.month, month < 1 || month > 12);
+  toggleError(errorElements.year, year > currentYear);
+
+  if (day < 1 || day > 31 || month < 1 || month > 12 || year > currentYear) {
+    isValidFlag = false;
   }
 
-  return true
+  return isValidFlag;
 }
 
+// Check if the date is valid, e.g., 30 days in April, February leap year rules
+function isValidDate(day, month, year) {
+  const monthsWith30Days = [4, 6, 9, 11]; // April, June, September, November
 
-// Function to check invidual user input
-function inputValidation(day, month, year){
-  let validFlag = true
-
-  if(day < 1 || day > 31){
-    errorDay.style.display = 'block'
-    validFlag = false
-  }else{
-    errorDay.style.display = 'none'
-  }
-  
-  if(month < 1 || month > 12){
-    errorMonth.style.display = 'block'
-    validFlag = false
-  }else{
-    errorMonth.style.display = 'none'
-  }
-  
-  if(year > currentYear){
-    errorYear.style.display = 'block'
-    validFlag = false
-  }else{
-    errorYear.style.display = 'none'
+  if (monthsWith30Days.includes(month) && day > 30) {
+    toggleError(errorElements.validDate, true);
+    return false;
   }
 
-  if(!validFlag){
-    return false
+  if (month === 2) {
+    const isLeapYear = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+    if (day > (isLeapYear ? 29 : 28)) {
+      toggleError(errorElements.validDate, true);
+      return false;
+    }
   }
 
-  return true
+  toggleError(errorElements.validDate, false);
+  return true;
 }
 
-// Function to calculate years (example)
+// Function to calculate time difference from today
 function calculateTime(day, month, year) {
+  const resultYear = currentYear - year;
+  let resultMonth = currentMonth - month;
+  let resultDay = currentDay - day;
 
-  let resultYear = currentYear - year
-  let resultMonth = currentMonth - month
-  let resultDay = currentDay - year
+  if (resultMonth < 0) {
+    resultMonth += 12;
+    resultYear--;
+  }
 
+  if (resultDay < 0) {
+    const daysInLastMonth = new Date(currentYear, currentMonth - 1, 0).getDate(); // Get last month's days
+    resultDay += daysInLastMonth;
+    resultMonth--;
+  }
 
-
-  document.querySelector('.result-days').textContent = resultDay
-  document.querySelector('.result-months').textContent = resultMonth
+  document.querySelector('.result-days').textContent = resultDay < 10 ? `0${resultDay}` : resultDay;
+  document.querySelector('.result-months').textContent = resultMonth < 10 ? `0${resultMonth}` : resultMonth;
   document.querySelector('.result-years').textContent = resultYear;
 }
